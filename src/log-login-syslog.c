@@ -33,7 +33,7 @@ int do_log(void)
   
   if (pwd = getpwnam(username), pwd == NULL)  return -1;
   
-  openlog("login", LOG_ODELAY, LOG_AUTHPRIV);
+  openlog("log-login-syslog", LOG_ODELAY, LOG_AUTHPRIV);
   
   if (strstr(ttyname, "ttyS") == ttyname)
     syslog(LOG_INFO, "DIALUP AT %s BY %s", ttyname, username);
