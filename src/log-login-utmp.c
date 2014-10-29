@@ -29,7 +29,7 @@ int do_log(void)
   
   if (!streq(action, "login"))
     return 0;
-
+  
   pid_ = (pid_t)atoll(pid);
   ttyno = first_digit(ttyname);
   memset(&ut, 0, sizeof(struct utmp));

@@ -23,6 +23,11 @@
 #include <sys/types.h>
 #include <sys/socket.h>
 #include <netdb.h>
+#include <stddef.h>
+#include <unistd.h>
+#include <errno.h>
+#include <sys/stat.h>
+#include <fcntl.h>
 
 
 
@@ -33,6 +38,9 @@
 #define LOGDIR VARDIR "/log"
 #endif
 
+
+/* ttyname is defined in <unistd.h> */
+#define ttyname tty
 
 
 #define LIST_ARGUMENTS  X(action) X(username) X(ttyname) X(pid) X(hostname)
@@ -85,6 +93,20 @@ static inline const char* get_hostaddress(const char* hostname)
   
   freeaddrinfo(info);
   return rc;
+}
+
+
+static inline int write_all(int fd, char* data, size_t n)
+{
+  ssize_t wrote;
+  
+  while (n > 0)
+    if (wrote = write(fd, data, n), wrote >= 0)
+      data += wrote, n -= (size_t)wrote;
+    else if (errno != EINTR)
+      return -1;
+  
+  return 0;
 }
 
 
