@@ -32,6 +32,13 @@
 
 
 
+#ifdef __GNUC__
+# pragma GCC diagnostic push
+# pragma GCC diagnostic ignored "-Wunused-function"
+#endif
+
+
+
 #ifndef VARDIR
 #define VARDIR "/var"
 #endif
@@ -41,13 +48,13 @@
 
 
 /* ttyname is defined in <unistd.h> */
-#define ttyname tty
+#define ttyname ttyname_
 
 
 #define LIST_ARGUMENTS  X(action) X(username) X(ttyname) X(pid) X(hostname)
 #define streq(a, b)     (((a == NULL) == (b == NULL)) || (a && b && !strcmp(a, b)))
 #define xstrcpy(d, s)   (s ? snprintf(d, sizeof(d) / sizeof(char), "%s", s) : 0)
-#define xmemcpy(d, s)   (s ? memcpy(d, s, sizeof(d)) : 0)
+#define xmemcpy(d, s)   (s ? memcpy(d, s, sizeof(d)) : NULL)
 
 
 
@@ -65,20 +72,20 @@ static inline const char* first_digit(const char* str)
 }
 
 
-static inline const char* get_hostaddress(const char* hostname)
+static const char* get_hostaddress(const char* host)
 {
   static char rc[32 * 4 / 8];
   struct addrinfo hints;
   struct addrinfo *info = NULL;
   
-  if (hostname == NULL)
+  if (host == NULL)
     return NULL;
   
   memset(rc, 0, sizeof(rc));
   memset(&hints, 0, sizeof(hints));
   hints.ai_flags = AI_ADDRCONFIG;
   
-  if (getaddrinfo(hostname, NULL, &hints, &info))  return NULL;
+  if (getaddrinfo(host, NULL, &hints, &info))  return NULL;
   if (info == NULL)                                return NULL;
   
   if (info->ai_family == AF_INET)

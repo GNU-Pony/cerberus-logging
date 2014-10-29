@@ -72,8 +72,8 @@ int do_log(void)
   {
     struct timeval tv;
     gettimeofday(&tv, NULL);
-    ut.ut_tv.tv_sec = tv.tv_sec;
-    ut.ut_tv.tv_usec = tv.tv_usec;
+    ut.ut_tv.tv_sec = (typeof(ut.ut_tv.tv_sec))(tv.tv_sec);
+    ut.ut_tv.tv_usec = (typeof(ut.ut_tv.tv_usec))(tv.tv_usec);
   }
 #else
   {

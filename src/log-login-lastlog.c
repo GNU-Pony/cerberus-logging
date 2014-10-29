@@ -37,7 +37,7 @@ int do_log(void)
   
   memset(&ll, 0, sizeof(ll));
   
-  time(&t), ll.ll_time = t;
+  time(&t), ll.ll_time = (typeof(ll.ll_time))t;
   xstrcpy(ll.ll_line, ttyname);
   xstrcpy(ll.ll_host, hostname);
   

@@ -11,7 +11,7 @@ BUILD DEPENDENCIES:
 
 	coreutils
 	make
-	c99		(opt-out, for all log-login-*)
+	gcc		(opt-out, for all log-login-*)
 	libc		(opt-out, for all log-login-*)
 	audit		(opt-out, for log-login-audit)
 
