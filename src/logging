@@ -18,11 +18,16 @@
 # along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 
+# Login username, client hostname if non-local, ttyname and cerberus-hook
 username=
 hostname=
+ttyname="$(tty | cut -d / -f 1,2 --complement)"
 hook="${1}"
+# Remove the hookname from $@
 shift 1
 
+# Parse the command line, excluding the hookname
+# This is the arguments cerberus was spawned with
 hostname_on_next=0
 dash=0
 for arg in "$@"; do
@@ -33,19 +38,19 @@ for arg in "$@"; do
 	while [ ! "${arg}" = "" ]; do
 	    c="${arg::1}"
 	    arg="${arg:1}"
-	    if [ "${c}" = "h" ]; then
+	    if [ "${c}" = "h" ]; then # hostname
 		if [ ! "${arg}" = "" ]; then
 		    hostname="${arg}"
 		else
 		    hostname_on_next=1
 		fi
 		break
-	    elif [ "${c}" = "f" ]; then
+	    elif [ "${c}" = "f" ]; then # force
 		if [ ! "${arg}" = "" ]; then
 		    username="${arg}"
 		fi
 		break
-	    elif [ "${c}" = "-" ]; then
+	    elif [ "${c}" = "-" ]; then # username
 		dash=1
 		break
 	    fi
@@ -57,4 +62,49 @@ for arg in "$@"; do
 	username="${arg}"
     fi
 done
+
+# Execute a program only if it exists
+try ()
+{
+    if hash "${1}" 2>/dev/null then
+	"$@"
+    fi
+}
+# Call logging programs (those that exists) for a successful login action
+log-login ()
+{
+    try log-login-utmp "$@"
+    try log-login-audit "$@"
+    try log-login-lastlog "$@"
+    try log-login-syslog "$@"
+}
+# Call logging programs (those that exists) for a logout action
+log-logout ()
+{
+    try log-login-syslog "$@"
+}
+# Call logging programs (those that exists) for a failed login action
+log-denied ()
+{
+    try log-login-btmp "$@"
+    try log-login-audit "$@"
+}
+
+# Figure out the actionname
+action="${hook}"
+if [ "${hook}" = denied ]; then
+    action=fail
+fi
+
+# Preprend options to values
+action=--action="${action}"
+username=--username="${username}"
+ttyname=--ttyname="${ttyname}"
+
+# Call the logging programs
+if [ "${hostname}" = "" ]; then
+    "log-${hook}" "${action}" "${username}" "${ttyname}"
+else
+    "log-${hook}" "${action}" "${username}" "${ttyname}" --hostname="${hostname}"
+fi
 
