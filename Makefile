@@ -8,10 +8,9 @@ BIN = /bin
 BINDIR = $(PREFIX)$(BIN)
 DATA = /share
 DEVDIR = /dev
-SYSCONFDIR = /etc
 LOGDIR = $(DEVDIR)/log
 DATADIR = $(PREFIX)$(DATA)
-LICENSES = $(DATADIR)/licenses
+LICENSEDIR = $(DATADIR)/licenses
 
 PKGNAME = cerberus-logging
 
@@ -31,6 +30,7 @@ WARN = -Wall -Wextra -Wdouble-promotion -Wformat=2 -Winit-self -Wmissing-include
 DEFS = -D'LOGDIR="$(LOGDIR)"'
 
 SYSTEMS = btmp utmp lastlog syslog audit
+DEFAULT_SYSTEMS = utmp
 
 L_btmp =
 L_utmp =
@@ -56,6 +56,67 @@ bin/log-login-%: obj/log-login-%.o obj/common.o
 obj/%.o: src/%.c src/*.h
 	@mkdir -p obj
 	$(CC) $(STD) $(OPTIMISE) $(WARN) $(DEFS) $(CPPFLAGS) $(CFLAGS) -c -o $@ $<
+
+
+.PHONY: install
+install: install-base install-default-systems
+
+.PHONY: install-all
+install-all: install-base install-systems
+
+.PHONY: install-base
+install-base: install-logging install-license
+
+.PHONY: install-logging
+install-logging:
+	install -dm755 -- "$(DESTDIR)$(DATADIR)/$(PKGNAME)"
+	install -m755 -- src/logging "$(DESTDIR)$(DATADIR)/$(PKGNAME)/logging"
+
+.PHONY: install-license
+install-license:
+	install -dm755 -- "$(DESTDIR)$(LICENSEDIR)/$(PKGNAME)"
+	install -m644 -- COPYING LICENSE "$(DESTDIR)$(LICENSEDIR)/$(PKGNAME)"
+
+.PHONY: install-systems
+install-systems: $(foreach S,$(SYSTEMS),install-$(S))
+
+.PHONY: install-default-systems
+install-default-systems: $(foreach S,$(DEFAULT_SYSTEMS),install-$(S))
+
+.PHONY: install-btmp
+install-btmp: bin/log-login-btmp
+	install -dm755 -- "$(DESTDIR)$(BINDIR)"
+	install $< -- "$(DESTDIR)$(BINDIR)/log-login-btmp"
+
+.PHONY: install-utmp
+install-utmp: bin/log-login-utmp
+	install -dm755 -- "$(DESTDIR)$(BINDIR)"
+	install $< -- "$(DESTDIR)$(BINDIR)/log-login-utmp"
+
+.PHONY: install-lastlog
+install-lastlog: bin/log-login-lastlog
+	install -dm755 -- "$(DESTDIR)$(BINDIR)"
+	install $< -- "$(DESTDIR)$(BINDIR)/log-login-lastlog"
+
+.PHONY: install-syslog
+install-syslog: bin/log-login-syslog
+	install -dm755 -- "$(DESTDIR)$(BINDIR)"
+	install $< -- "$(DESTDIR)$(BINDIR)/log-login-syslog"
+
+.PHONY: install-audit
+install-audit: bin/log-login-audit
+	install -dm755 -- "$(DESTDIR)$(BINDIR)"
+	install $< -- "$(DESTDIR)$(BINDIR)/log-login-audit"
+
+
+.PHONY: uninstall
+uninstall:
+	-rm -- "$(DESTDIR)$(DATADIR)/$(PKGNAME)/logging"
+	-rmdir -- "$(DESTDIR)$(DATADIR)/$(PKGNAME)"
+	-rm -- $(foreach S,$(SYSTEMS),"$(DESTDIR)$(BINDIR)/log-login-$(S)")
+	-rm -- "$(DESTDIR)$(LICENSEDIR)/$(PKGNAME)/COPYING"
+	-rm -- "$(DESTDIR)$(LICENSEDIR)/$(PKGNAME)/LICENSE"
+	-rmdir -- "$(DESTDIR)$(LICENSEDIR)/$(PKGNAME)"
 
 
 .PHONY: clean
