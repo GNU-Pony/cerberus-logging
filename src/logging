@@ -66,6 +66,7 @@ for arg in "$@"; do
 	username="${arg}"
     fi
 done
+user="${username}"
 
 # Execute a program only if it exists
 try ()
@@ -77,6 +78,17 @@ try ()
 # Call logging programs (those that exists) for a successful login action
 log-login ()
 {
+    # This is useful if you want to print the last logging.
+    # log-login-lastlog updates the entry in lastlog so it is helpful
+    # to be able to print the log entry before the is updated. Its lets
+    # you add a script named .prelogin in your home directory that
+    # contains the following code, to print the last login information:
+    #    echo 'Last login:' ; lastlog --user $USER | tail -n 1
+    script="$(getent passwd | grep '^${user}:' | cut -d : -f 6)/.prelogin"
+    if [ -x "${script}" ]; then
+	su -c "${script}" -- "${user}"
+    fi
+    
     try log-login-utmp "$@"
     try log-login-audit "$@"
     try log-login-lastlog "$@"
