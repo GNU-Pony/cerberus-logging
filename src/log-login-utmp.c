@@ -17,46 +17,21 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 #include "common.h"
-
 #include <utmp.h>
 
 
-
-#define X(A)  static const char* A = NULL;
-  LIST_ARGUMENTS
-#undef X
-
-
-static int log_action(void);
-
-
-int main(int argc, char** argv)
-{
-  int i;
-  
-  for (i = 1; i < argc; i++)
-    {
-#define X(A)  if (strstr(argv[i], "--" #A "="))  A = strchr(argv[i], '=') + 1;
-      LIST_ARGUMENTS
-#undef X
-    }
-  
-  if (!streq(action, "login"))  return 0;
-  if (NULL == username)         return 1;
-  if (NULL == ttyname)          return 1;
-  if (NULL == pid)              return 1;
-  
-  return -log_action();
-}
-
-
-static int log_action(void)
+int do_log(void)
 {
   struct utmp ut;
   struct utmp *entry;
-  pid_t pid_ = (pid_t)atoll(pid);
-  const char* ttyno = first_digit(ttyname);
+  pid_t pid_;
+  const char* ttyno;
   
+  if (!streq(action, "login"))
+    return 0;
+
+  pid_ = (pid_t)atoll(pid);
+  ttyno = first_digit(ttyname);
   memset(&ut, 0, sizeof(struct utmp));
   
   utmpname(_PATH_UTMP);

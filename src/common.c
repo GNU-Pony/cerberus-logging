@@ -17,42 +17,28 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 #include "common.h"
-#include <utmp.h>
 
 
-int do_log(void)
+#define X(A)  const char* A = NULL;
+  LIST_ARGUMENTS
+#undef X
+
+
+int main(int argc, char** argv)
 {
-  struct utmp ut;
+  int i;
   
-  if (!streq(action, "failed"))
-    return 0;
+  for (i = 1; i < argc; i++)
+    {
+#define X(A)  if (strstr(argv[i], "--" #A "="))  A = strchr(argv[i], '=') + 1;
+      LIST_ARGUMENTS
+#undef X
+    }
   
-  memset(&ut, 0, sizeof(struct utmp));
+  if (NULL == username)  return 1;
+  if (NULL == ttyname)   return 1;
+  if (NULL == pid)       return 1;
   
-  ut.ut_type = LOGIN_PROCESS;
-  ut.ut_pid = (pid_t)atoll(pid);
-  xstrcpy(ut.ut_user, username);
-  xstrcpy(ut.ut_host, hostname);
-  xstrcpy(ut.ut_line, ttyname);
-  xstrcpy(ut.ut_id, first_digit(ttyname));
-  xmemcpy(ut.ut_addr_v6, get_hostaddress(hostname));
-  
-#ifdef _HAVE_UT_TV
-  {
-    struct timeval tv;
-    gettimeofday(&tv, NULL);
-    ut.ut_tv.tv_sec = tv.tv_sec;
-    ut.ut_tv.tv_usec = tv.tv_usec;
-  }
-#else
-  {
-    time_t t;
-    time(&t);
-    ut.ut_time = t;
-  }
-#endif
-  
-  updwtmp(LOGDIR "/btmp", &ut);
-  return 0;
+  return -do_log();
 }
 

@@ -42,6 +42,11 @@
 
 
 
+#define X(A)  extern const char* A;
+  LIST_ARGUMENTS
+#undef X
+
+
 static inline const char* first_digit(const char* str)
 {
   for (; str && *str; str++)
@@ -81,4 +86,7 @@ static inline const char* get_hostaddress(const char* hostname)
   freeaddrinfo(info);
   return rc;
 }
+
+
+int do_log(void);
 
