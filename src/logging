@@ -1,0 +1,60 @@
+#!/bin/sh
+
+# cerberus-logging – Log-in logging extension for cerberus
+# 
+# Copyright © 2014  Mattias Andrée (maandree@member.fsf.org)
+# 
+# This program is free software: you can redistribute it and/or modify
+# it under the terms of the GNU General Public License as published by
+# the Free Software Foundation, either version 3 of the License, or
+# (at your option) any later version.
+# 
+# This program is distributed in the hope that it will be useful,
+# but WITHOUT ANY WARRANTY; without even the implied warranty of
+# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+# GNU General Public License for more details.
+# 
+# You should have received a copy of the GNU General Public License
+# along with this program.  If not, see <http://www.gnu.org/licenses/>.
+
+
+username=
+hostname=
+hook="${1}"
+shift 1
+
+hostname_on_next=0
+dash=0
+for arg in "$@"; do
+    if [ "${arg}" = "" ]; then
+	true
+    elif [ "${arg::1}" = "-" ] && [ ${dash} = 0 ]; then
+	arg="${arg:1}"
+	while [ ! "${arg}" = "" ]; do
+	    c="${arg::1}"
+	    arg="${arg:1}"
+	    if [ "${c}" = "h" ]; then
+		if [ ! "${arg}" = "" ]; then
+		    hostname="${arg}"
+		else
+		    hostname_on_next=1
+		fi
+		break
+	    elif [ "${c}" = "f" ]; then
+		if [ ! "${arg}" = "" ]; then
+		    username="${arg}"
+		fi
+		break
+	    elif [ "${c}" = "-" ]; then
+		dash=1
+		break
+	    fi
+	done
+    elif [ ${hostname_on_next} = 1 ]; then
+	hostname="${arg}"
+	hostname_on_next=0
+    else
+	username="${arg}"
+    fi
+done
+
