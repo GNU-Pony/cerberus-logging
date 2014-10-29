@@ -18,11 +18,12 @@
 # along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 
-# Login username, client hostname if non-local, ttyname and cerberus-hook
+# Login username, client hostname if non-local, ttyname, cerberus-hook and PID
 username=
 hostname=
 ttyname="$(tty | cut -d / -f 1,2 --complement)"
 hook="${1}"
+pid=$PPID
 # Remove the hookname from $@
 shift 1
 
@@ -100,11 +101,12 @@ fi
 action=--action="${action}"
 username=--username="${username}"
 ttyname=--ttyname="${ttyname}"
+pid=--pid="${pid}"
 
 # Call the logging programs
 if [ "${hostname}" = "" ]; then
-    "log-${hook}" "${action}" "${username}" "${ttyname}"
+    "log-${hook}" "${action}" "${username}" "${ttyname}" "${pid}"
 else
-    "log-${hook}" "${action}" "${username}" "${ttyname}" --hostname="${hostname}"
+    "log-${hook}" "${action}" "${username}" "${ttyname}" "${pid}" --hostname="${hostname}"
 fi
 
