@@ -24,6 +24,9 @@ hostname=
 ttyname="$(tty | cut -d / -f 1,2 --complement)"
 hook="${1}"
 pid=$PPID
+if [ ! "${LOGIN_PID}" = "" ]; then
+    pid="${LOGIN_PID}"
+fi
 # Remove the hookname from $@
 shift 1
 
