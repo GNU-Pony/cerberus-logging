@@ -71,12 +71,12 @@ user="${username}"
 # Execute a program only if it exists
 try ()
 {
-    if hash "${1}" 2>/dev/null then
+    if hash "${1}" 2>/dev/null; then
 	"$@"
     fi
 }
 # Call logging programs (those that exists) for a successful login action
-log-login ()
+log_login ()
 {
     # This is useful if you want to print the last logging.
     # log-login-lastlog updates the entry in lastlog so it is helpful
@@ -95,12 +95,12 @@ log-login ()
     try log-login-syslog "$@"
 }
 # Call logging programs (those that exists) for a logout action
-log-logout ()
+log_logout ()
 {
     true
 }
 # Call logging programs (those that exists) for a failed login action
-log-denied ()
+log_denied ()
 {
     try log-login-btmp "$@"
     try log-login-audit "$@"
@@ -120,8 +120,8 @@ pid=--pid="${pid}"
 
 # Call the logging programs
 if [ "${hostname}" = "" ]; then
-    "log-${hook}" "${action}" "${username}" "${ttyname}" "${pid}"
+    "log_${hook}" "${action}" "${username}" "${ttyname}" "${pid}"
 else
-    "log-${hook}" "${action}" "${username}" "${ttyname}" "${pid}" --hostname="${hostname}"
+    "log_${hook}" "${action}" "${username}" "${ttyname}" "${pid}" --hostname="${hostname}"
 fi
 
