@@ -21,7 +21,7 @@
 # Login username, client hostname if non-local, ttyname, cerberus-hook and PID
 username=
 hostname=
-ttyname="$(tty | cut -d / -f 1,2 --complement)"
+ttyname="$(tty <&2 | cut -d / -f 1,2 --complement)"
 hook="${1}"
 pid=$PPID
 if [ ! "${LOGIN_PID}" = "" ]; then
