@@ -10,6 +10,8 @@ DATA = /share
 DEVDIR = /dev
 LOGDIR = $(DEVDIR)/log
 DATADIR = $(PREFIX)$(DATA)
+DOCDIR = $(DATADIR)/doc
+INFODIR = $(DATADIR)/info
 LICENSEDIR = $(DATADIR)/licenses
 
 PKGNAME = cerberus-logging
@@ -39,8 +41,11 @@ L_syslog =
 L_audit = -laudit
 
 
+.PHONY: default
+default: $(DEFAULT_SYSTEMS) info
+
 .PHONY: all
-all: $(SYSTEMS)
+all: $(SYSTEMS) doc
 
 .PHONY: btmp utmp lastlog syslog audit
 btmp: bin/log-login-btmp
@@ -57,12 +62,41 @@ obj/%.o: src/%.c src/*.h
 	@mkdir -p obj
 	$(CC) $(STD) $(OPTIMISE) $(WARN) $(DEFS) $(CPPFLAGS) $(CFLAGS) -c -o $@ $<
 
+.PHONY: doc
+doc: info pdf ps dvi
+
+.PHONY: info
+info: cerberus-logging.info
+%.info: info/%.texinfo
+	makeinfo "$<"
+
+.PHONY: pdf
+pdf: cerberus-logging.pdf
+%.pdf: info/%.texinfo info/fdl.texinfo
+	mkdir -p obj
+	cd obj ; yes X | texi2pdf ../$<
+	mv obj/$@ $@
+
+.PHONY: dvi
+dvi: cerberus-logging.dvi
+%.dvi: info/%.texinfo info/fdl.texinfo
+	mkdir -p obj
+	cd obj ; yes X | $(TEXI2DVI) ../$<
+	mv obj/$@ $@
+
+.PHONY: ps
+ps: cerberus-logging.ps
+%.ps: info/%.texinfo info/fdl.texinfo
+	mkdir -p obj
+	cd obj ; yes X | texi2pdf --ps ../$<
+	mv obj/$@ $@
+
 
 .PHONY: install
-install: install-base install-default-systems
+install: install-base install-default-systems install-info
 
 .PHONY: install-all
-install-all: install-base install-systems
+install-all: install-base install-systems install-doc
 
 .PHONY: install-base
 install-base: install-logging install-license
@@ -108,6 +142,29 @@ install-audit: bin/log-login-audit
 	install -dm755 -- "$(DESTDIR)$(BINDIR)"
 	install $< -- "$(DESTDIR)$(BINDIR)/log-login-audit"
 
+.PHONY: install-doc
+install-doc: install-info install-pdf install-ps install-dvi
+
+.PHONY: install-info
+install-info: cerberus-logging.info
+	install -dm755 -- "$(DESTDIR)$(INFODIR)"
+	install -m644 -- "$<" "$(DESTDIR)$(INFODIR)/$(PKGNAME).info"
+
+.PHONY: install-pdf
+install-pdf: cerberus-logging.pdf
+	install -dm755 -- "$(DESTDIR)$(DOCDIR)"
+	install -m644 -- "$<" "$(DESTDIR)$(DOCDIR)/$(PKGNAME).pdf"
+
+.PHONY: install-ps
+install-ps: cerberus-logging.ps
+	install -dm755 -- "$(DESTDIR)$(DOCDIR)"
+	install -m644 -- "$<" "$(DESTDIR)$(DOCDIR)/$(PKGNAME).ps"
+
+.PHONY: install-dvi
+install-dvi: cerberus-logging.dvi
+	install -dm755 -- "$(DESTDIR)$(DOCDIR)"
+	install -m644 -- "$<" "$(DESTDIR)$(DOCDIR)/$(PKGNAME).dvi"
+
 
 .PHONY: uninstall
 uninstall:
@@ -117,6 +174,11 @@ uninstall:
 	-rm -- "$(DESTDIR)$(LICENSEDIR)/$(PKGNAME)/COPYING"
 	-rm -- "$(DESTDIR)$(LICENSEDIR)/$(PKGNAME)/LICENSE"
 	-rmdir -- "$(DESTDIR)$(LICENSEDIR)/$(PKGNAME)"
+	-rmdir -- "$(DESTDIR)$(PREFIX)$(LICENSES)/$(PKGNAME)"
+	-rm -- "$(DESTDIR)$(INFODIR)/$(PKGNAME).info"
+	-rm -- "$(DESTDIR)$(DOCDIR)/$(PKGNAME).pdf"
+	-rm -- "$(DESTDIR)$(DOCDIR)/$(PKGNAME).ps"
+	-rm -- "$(DESTDIR)$(DOCDIR)/$(PKGNAME).dvi"
 
 
 .PHONY: clean
