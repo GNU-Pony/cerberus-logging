@@ -84,7 +84,7 @@ log_login ()
     # you add a script named .prelogin in your home directory that
     # contains the following code, to print the last login information:
     #    echo 'Last login:' ; lastlog --user $USER | tail -n 1
-    script="$(getent passwd | grep '^${user}:' | cut -d : -f 6)/.prelogin"
+    script="$(getent passwd | grep "^${user}:" | cut -d : -f 6)/.prelogin"
     if [ -x "${script}" ]; then
 	su -c "${script}" -- "${user}"
     fi
