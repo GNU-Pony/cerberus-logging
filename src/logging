@@ -81,7 +81,7 @@ log-login ()
 # Call logging programs (those that exists) for a logout action
 log-logout ()
 {
-    try log-login-syslog "$@"
+    true
 }
 # Call logging programs (those that exists) for a failed login action
 log-denied ()
