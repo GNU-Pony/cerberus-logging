@@ -1,0 +1,23 @@
+RUNTIME DEPENDENCIES:
+
+	coreutils
+	sh
+	libc		(opt-out, for all log-login-*)
+	audit		(opt-out, for log-login-audit)
+	util-linux	(optional, for ~/.prelogin support)
+
+
+BUILD DEPENDENCIES:
+
+	coreutils
+	make
+	c99		(opt-out, for all log-login-*)
+	libc		(opt-out, for all log-login-*)
+	audit		(opt-out, for log-login-audit)
+
+
+INSTALL DEPENDENCIES:
+
+	coreutils
+	make
+
