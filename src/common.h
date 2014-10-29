@@ -28,6 +28,7 @@
 #include <errno.h>
 #include <sys/stat.h>
 #include <fcntl.h>
+#include <stdlib.h>
 
 
 
@@ -44,7 +45,7 @@
 
 
 #define LIST_ARGUMENTS  X(action) X(username) X(ttyname) X(pid) X(hostname)
-#define streq(a, b)     ((a == b) || (a && b && !strcmp(a, b)))
+#define streq(a, b)     (((a == NULL) == (b == NULL)) || (a && b && !strcmp(a, b)))
 #define xstrcpy(d, s)   (s ? snprintf(d, sizeof(d) / sizeof(char), "%s", s) : 0)
 #define xmemcpy(d, s)   (s ? memcpy(d, s, sizeof(d)) : 0)
 
