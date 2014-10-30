@@ -27,23 +27,36 @@ int do_log(void)
   struct passwd* pwd;
   const char* prefix;
   const char* affix;
+  int status;
   
-  if (!streq(action, "login"))
+  if ((!streq(action, "failed")) && (!streq(action, "login")))
     return 0;
+  
+  status = streq(action, "login");
   
   if (pwd = getpwnam(username), pwd == NULL)  return -1;
   
   openlog("log-login-syslog", LOG_ODELAY, LOG_AUTHPRIV);
-  
-  if (strstr(ttyname, "ttyS") == ttyname)
-    syslog(LOG_INFO, "DIALUP AT %s BY %s", ttyname, username);
-  
-  prefix = pwd->pw_uid ? "" : "ROOT ";
-  affix = hostname ? " FROM " : "";
-  hostname = hostname ? hostname : empty;
-  
-  syslog(pwd->pw_uid ? LOG_INFO : LOG_NOTICE, "%sLOGIN ON %s BY %s%s%s",
-	 prefix, ttyname, username, affix, hostname);
+
+  if (status)
+    {
+      if (strstr(ttyname, "ttyS") == ttyname)
+	syslog(LOG_INFO, "DIALUP AT %s BY %s", ttyname, username);
+      
+      prefix = pwd->pw_uid ? "" : "ROOT ";
+      affix = hostname ? " FROM " : "";
+      hostname = hostname ? hostname : empty;
+      
+      syslog(pwd->pw_uid ? LOG_INFO : LOG_NOTICE, "%sLOGIN ON %s BY %s%s%s",
+	     prefix, ttyname, username, affix, hostname);
+    }
+  else
+    {
+      affix = hostname ? " FROM " : "";
+      
+      syslog(LOG_NOTICE, "FAILED LOGIN SESSION%s%s FOR %s ON %s",
+	     affix, hostname, username, ttyname);
+    }
   
   closelog();
   return 0;

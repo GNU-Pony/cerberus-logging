@@ -83,11 +83,11 @@ Log failed login attempt with the btmp system.
 @item log-login-utmp
 Log successful login with the utmp/wtmp system.
 @item log-login-audit
-Log successful or failed login attemp with the audit system.
+Log successful or failed login attempt with the audit system.
 @item log-login-lastlog
 Log successful login with the lastlog system.
 @item log-login-syslog
-Log successful login with syslog.
+Log successful or failed login attempt with syslog.
 @end table
 
 Upon a successful login, before the login takes place,

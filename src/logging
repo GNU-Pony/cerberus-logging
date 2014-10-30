@@ -104,12 +104,13 @@ log_denied ()
 {
     try log-login-btmp "$@"
     try log-login-audit "$@"
+    try log-login-syslog "$@"
 }
 
 # Figure out the actionname
 action="${hook}"
 if [ "${hook}" = denied ]; then
-    action=fail
+    action=failed
 fi
 
 # Preprend options to values

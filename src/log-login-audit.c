@@ -28,7 +28,7 @@ int do_log(void)
   
   if ((!streq(action, "failed")) && (!streq(action, "login")))
     return 0;
-
+  
   status = streq(action, "login");
   
   if (pwd = getpwnam(username), pwd == NULL)  return -1;
