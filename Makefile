@@ -56,7 +56,7 @@ audit: bin/log-login-audit
 
 bin/log-login-%: obj/log-login-%.o obj/common.o
 	@mkdir -p bin
-	$(CC) $(STD) $(OPTIMISE) $(WARN) $(LDFLAGS) $(L_$*) -o $@ $^
+	$(CC) $(STD) $(OPTIMISE) $(WARN) $(L_$*) $(LDFLAGS) -o $@ $^
 
 obj/%.o: src/%.c src/*.h
 	@mkdir -p obj
