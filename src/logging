@@ -120,9 +120,11 @@ ttyname=--ttyname="${ttyname}"
 pid=--pid="${pid}"
 
 # Call the logging programs
-if [ "${hostname}" = "" ]; then
-    "log_${hook}" "${action}" "${username}" "${ttyname}" "${pid}"
-else
-    "log_${hook}" "${action}" "${username}" "${ttyname}" "${pid}" --hostname="${hostname}"
+if [ "${hook}" = login ] || [ "${hook}" = logout ] || [ "${hook}" = denied ]; then
+    if [ "${hostname}" = "" ]; then
+	"log_${hook}" "${action}" "${username}" "${ttyname}" "${pid}"
+    else
+	"log_${hook}" "${action}" "${username}" "${ttyname}" "${pid}" --hostname="${hostname}"
+    fi
 fi
 
