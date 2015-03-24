@@ -61,7 +61,7 @@ Texts. A copy of the license is included in the section entitled
 
 @command{cerberus-logging} is extension set to @command{cerberus}
 for logging logins, logouts (possible but not implemented) and
-failed login attempts. The only restrict @command{cerberus-logging}
+failed login attempts. The only restriction @command{cerberus-logging}
 has is that it cannot log what passphrase the user entered; this
 is because @command{cerberus} does not provide that information.
 
